@@ -1,0 +1,31 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main  # Runs on every push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'  # Set to your .NET version
+
+    - name: Build and publish
+      run: |
+        dotnet publish -c Release -o ./publish
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: MDWebApp10  # Your Azure Web App name
+        slot-name: production
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: ./publish
